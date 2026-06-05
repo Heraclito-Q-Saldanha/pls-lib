@@ -20,7 +20,12 @@ pub enum Network {
 }
 
 #[wasm_bindgen]
-pub struct BitcoinMultisig {}
+pub struct BitcoinMultisig {
+	#[wasm_bindgen(getter_with_clone)]
+	pub combination: Vec<String>,
+	#[wasm_bindgen(getter_with_clone)]
+	pub address: String,
+}
 
 impl From<crate::error::Error> for Error {
 	#[inline]
@@ -41,8 +46,11 @@ impl From<bitcoin::secp256k1::Error> for Error {
 
 impl From<crate::BitcoinMultisig> for BitcoinMultisig {
 	#[inline]
-	fn from(_: crate::BitcoinMultisig) -> Self {
-		Self {}
+	fn from(value: crate::BitcoinMultisig) -> Self {
+		Self {
+			combination: value.combination.into_iter().map(|pk| pk.to_string()).collect(),
+			address: value.address.to_string(),
+		}
 	}
 }
 

@@ -16,8 +16,7 @@ use bitcoin::taproot;
 const NUMS: &str = "50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0";
 
 pub struct BitcoinMultisig {
-	pub multisig_scripts: Vec<script::ScriptBuf>,
-	pub spend_info: taproot::TaprootSpendInfo,
+	pub combination: Vec<bitcoin::XOnlyPublicKey>,
 	pub address: Address,
 }
 
@@ -56,12 +55,9 @@ pub fn create_bitcoin_multisig(
 		return Err(error::Error::TaprootBuilderFinalizeError);
 	};
 	let address = Address::p2tr(&secp, spend_info.internal_key(), spend_info.merkle_root(), network);
+	let combination: Vec<_> = arbitrator_combinations.into_iter().enumerate().map(|(i, combo)| combo[i]).collect();
 
-	Ok(BitcoinMultisig {
-		multisig_scripts,
-		spend_info,
-		address,
-	})
+	Ok(BitcoinMultisig { combination, address })
 }
 
 fn combine<T: Clone>(items: &[T], k: usize) -> Vec<Vec<T>> {
